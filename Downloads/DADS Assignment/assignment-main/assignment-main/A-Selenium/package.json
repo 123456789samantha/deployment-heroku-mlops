@@ -1,0 +1,24 @@
+{
+  "name": "a-selenium",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "directories": {
+    "test": "test"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0",
+    "selenium-webdriver": "^4.40.0"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

@@ -1,0 +1,48 @@
+# Use a Docker image that has Node.js and the Chrome browser pre-installed 
+image: node:20 
+ 
+stages: 
+  - test 
+ 
+# Define the job that will run our tests 
+e2e-tests: 
+  stage: test 
+  # 'before_script' runs commands to set up the environment inside the Docker container. 
+  before_script: 
+    # 1. Update package list and install necessary tools (wget for downloading, gpg for security keys) 
+    - apt-get update -y 
+    - apt-get install -y wget gpg 
+      # 2. Add Google Chrome's official signing key 
+    #    This ensures the packages you download are authentic. 
+    - wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome-keyring.gpg 
+ 
+    # 3. Add the Google Chrome repository to the system's sources list 
+    #    This tells 'apt-get' where to look for the 'google-chrome-stable' package. 
+    - echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chromekeyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list 
+ 
+    # 4. Update the package list AGAIN to include the new Google Chrome packages 
+    - apt-get update -y 
+ 
+    # 5. NOW you can install Google Chrome successfully 
+    - apt-get install -y google-chrome-stable 
+    - npm ci 
+    # Start our web server in the background using '&'. 
+    - npm install -g live-server 
+    - node app.js & 
+ 
+  # The 'script' section contains the main commands for the job. 
+  script: 
+    # Run our Jest test suite. 
+    # -- --headless: The first '--' separates npm arguments from script arguments. 
+    # We pass a custom '--headless' flag to our test script. 
+    # --runInBand: Tells Jest to run tests serially in one process. This is often 
+    # more stable and less resource-intensive in CI environments. 
+    - HEADLESS=true npm test -- --runInBand 
+ 
+  # Define artifacts to save when the job is done 
+  artifacts: 
+    paths: 
+      # This saves the entire screenshots folder 
+      - screenshots/ 
+    # Keep the artifacts for 1 week 
+    expire_in: 1 week
