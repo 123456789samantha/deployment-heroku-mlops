@@ -1,0 +1,14 @@
+#Use a Node.js Docker image to ensure we have npm available 
+image: node:18 
+# Define the stages of our pipeline 
+stages: - test 
+# Define the linting job 
+lint-code: 
+stage: test 
+script:  
+# Install dependencies efficiently using npm ci 
+- echo "Installing dependencies..." 
+- npm ci 
+# Run the lint script defined in package.json 
+- echo "Running linter..." 
+- npm run lint 
