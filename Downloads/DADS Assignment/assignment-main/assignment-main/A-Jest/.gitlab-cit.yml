@@ -1,0 +1,31 @@
+ #.gitlab-ci.yml 
+ 
+# Use an official Node.js v18 image for consistency. 
+image: node:18 
+ 
+# Define the stages of our pipeline. We only have one: test. 
+stages: 
+  - test 
+ 
+# This is the job that will run our Jest tests. 
+run_jest_tests: 
+  stage: test # Assign this job to the 'test' stage. 
+   
+  # Commands to run before the main script. Need to install dependencies. 
+  before_script: 
+    - echo "Installing dependencies..." 
+    - npm ci 
+   
+  # The main script that runs the tests. 
+  # --ci is an optimization for CI environments. 
+  # --coverage tells Jest to generate a coverage report. 
+  script: 
+    - echo "Running Jest tests..." 
+    - npm test -- --ci --coverage --reporters=default --reporters=jest-junit 
+ 
+  # Define which files to save as "artifacts". 
+  # Artifacts are files saved from a job that can be downloaded later. 
+  artifacts: 
+    when: always # Save artifacts even if the job fails (to see the report). 
+    paths: 
+      - coverage/ # Save the entire coverage folder. 
