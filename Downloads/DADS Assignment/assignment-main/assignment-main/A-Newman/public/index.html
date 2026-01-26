@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Management UI</title>
+    <style>
+        body { font-family: sans-serif; max-width: 700px; margin: auto; padding: 20px; background-color: #f4f4f4; }
+        h1, h2 { color: #333; }
+        form { margin-bottom: 20px; display: flex; gap: 10px; padding: 15px; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; flex-grow: 1; }
+        button { padding: 10px 15px; cursor: pointer; border: none; border-radius: 4px; color: white; background-color: #007bff; }
+        .user-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background-color: white; border: 1px solid #ddd; margin-top: -1px; }
+        .delete-btn { background-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <h1>User Management</h1>
+    <form id="addUserForm">
+        <input type="text" id="userName" placeholder="Enter name" required>
+        <input type="email" id="userEmail" placeholder="Enter email" required>
+        <button type="submit">Add User</button>
+    </form>
+    <h2>Current Users</h2>
+    <div id="userList"><p>Loading...</p></div>
+
+    <script>
+        const userListDiv = document.getElementById('userList');
+        const addUserForm = document.getElementById('addUserForm');
+
+        const renderUsers = (users) => {
+            userListDiv.innerHTML = '';
+            if (users.length === 0) {
+                userListDiv.innerHTML = '<p>No users found. Add one above!</p>';
+                return;
+            }
+            users.forEach(user => {
+                const userDiv = document.createElement('div');
+                userDiv.className = 'user-item';
+                userDiv.setAttribute('data-user-id', user.id);
+                userDiv.innerHTML = `<span>${user.name} (${user.email})</span><button class="delete-btn" data-id="${user.id}">Delete</button>`;
+                userListDiv.appendChild(userDiv);
+            });
+        };
+
+        const fetchUsers = async () => {
+            try {
+                const response = await fetch('/api/users');
+                renderUsers(await response.json());
+            } catch (error) {
+                userListDiv.innerHTML = '<p>Error loading users.</p>';
+            }
+        };
+
+        addUserForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            await fetch('/api/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email }) });
+            addUserForm.reset();
+            fetchUsers();
+        });
+
+        userListDiv.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('delete-btn')) {
+                const userId = e.target.getAttribute('data-id');
+                await fetch(`/api/users/${userId}`, { method: 'DELETE' });
+                fetchUsers();
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', fetchUsers);
+    </script>
+</body>
+</html>

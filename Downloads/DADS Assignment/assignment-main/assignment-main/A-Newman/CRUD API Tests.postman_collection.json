@@ -1,0 +1,136 @@
+{
+  "info": {
+    "_postman_id": "f576fb04-5394-4fa7-a5b5-1d89ee298502",
+    "name": "CRUD API Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49465825",
+    "_collection_link": "https://go.postman.co/collection/49465825-f576fb04-5394-4fa7-a5b5-1d89ee298502?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Create user",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Feature Covered: Test Assertions & Variable Chaining\r",
+              "pm.test(\"Status code is 201 Created\", () => {\r",
+              "  pm.response.to.have.status(201);\r",
+              "});\r",
+              "\r",
+              "const response = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Response contains new user ID\", () => {\r",
+              "  pm.expect(response).to.have.property(\"id\");\r",
+              "});\r",
+              "\r",
+              "// Save ID for subsequent requests\r",
+              "pm.environment.set(\"userId\", response.id);\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Test shah\",\r\n  \"email\": \"testshah@example.com\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseURL}}/api/users",
+          "host": [
+            "{{baseURL}}"
+          ],
+          "path": [
+            "api",
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get created user",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseURL}}/api/users/{{userId}}\n",
+          "host": [
+            "{{baseURL}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "{{userId}}\n"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update user",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\":\"Ashsyura\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseURL}}/api/users/{{userId}}\n",
+          "host": [
+            "{{baseURL}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "{{userId}}\n"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete user",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseURL}}/api/users/{{userId}}\n",
+          "host": [
+            "{{baseURL}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "{{userId}}\n"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "userId",
+      "value": ""
+    }
+  ]
+}
