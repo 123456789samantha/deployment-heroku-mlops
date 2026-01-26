@@ -1,0 +1,43 @@
+# Use a base image with Node.js 
+image: node:18 
+ 
+stages: 
+  - install 
+  - performance_test 
+ 
+# Cache node_modules to speed up subsequent builds 
+cache: 
+  paths: 
+    - node_modules/ 
+ 
+# Job to install Node.js dependencies 
+install_dependencies: 
+  stage: install 
+  script: 
+    - echo "Installing Node.js dependencies..." 
+    - npm install
+# Job to run the JMeter performance test 
+run_jmeter_test: 
+  stage: performance_test 
+  # We need an image with both Java and JMeter.  
+  # Alternatively you could use pre-built image like `justb4/jmeter`. 
+  before_script: 
+    - echo "Installing JMeter..." 
+    - apt-get update && apt-get install -y default-jre wget 
+    - wget https://dlcdn.apache.org//jmeter/binaries/apache-jmeter-5.6.3.zip 
+    - unzip apache-jmeter-5.6.3 
+    - export JMETER_HOME=$PWD/apache-jmeter-5.6.3 
+    - export PATH=$JMETER_HOME/bin:$PATH 
+  script: 
+    - echo "Starting Node.js server in the background..." 
+    - node server.js & 
+    - sleep 5 # Give the server a moment to start up 
+    - echo "Running JMeter test..." 
+    # Run JMeter in non-GUI mode 
+    - jmeter -n -t nodejs_test_plan.jmx -l results.jtl -e -o report 
+  artifacts: 
+    when: always # Collect artifacts even if the job fails 
+    paths: 
+      - report/ # The HTML report folder 
+      - results.jtl # The raw results file 
+    expire_in: 1 week # Keep artifacts for one week 
